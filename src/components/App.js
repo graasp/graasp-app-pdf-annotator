@@ -69,7 +69,7 @@ export class App extends Component {
   render() {
     const { mode, view, headerVisible, ready, standalone } = this.props;
 
-    if (!ready) {
+    if (!standalone && !ready) {
       return <Loader />;
     }
 

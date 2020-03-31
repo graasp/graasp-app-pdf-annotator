@@ -11,6 +11,8 @@ import { showErrorToast } from '../utils/toasts';
 
 const DEFAULT_SETTINGS = {
   headerVisible: false,
+  collaborative: false,
+  file: {},
 };
 
 const INITIAL_STATE = {

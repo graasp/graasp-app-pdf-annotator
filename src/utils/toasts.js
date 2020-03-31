@@ -6,7 +6,7 @@ import {
   UNEXPECTED_ERROR_MESSAGE,
 } from '../constants/messages';
 
-const showErrorToast = payload => {
+const parseMessage = payload => {
   let message = UNEXPECTED_ERROR_MESSAGE;
   if (_.isString(payload)) {
     message = payload;
@@ -19,6 +19,11 @@ const showErrorToast = payload => {
   if (message === FAILED_TO_FETCH_MESSAGE_RAW) {
     message = FAILED_TO_FETCH_MESSAGE_PRETTY;
   }
+  return message;
+};
+
+const showErrorToast = payload => {
+  const message = parseMessage(payload);
 
   toast.error(message, {
     toastId: message,
@@ -27,7 +32,14 @@ const showErrorToast = payload => {
   });
 };
 
-export {
-  // eslint-disable-next-line import/prefer-default-export
-  showErrorToast,
+const showWarningToast = payload => {
+  const message = parseMessage(payload);
+
+  toast.warn(message, {
+    toastId: message,
+    autoClose: true,
+    position: 'bottom-right',
+  });
 };
+
+export { showWarningToast, showErrorToast };

@@ -6,5 +6,6 @@
   "/app-instance-resources": "/appInstanceResources",
   "/app-instance-resources/:id": "/appInstanceResources/:id",
   "/spaces/:spaceId/users": "/spaces/:spaceId/users",
+  "/spaces/:spaceId/light-users": "/spaces/:spaceId/lightUsers",
   "/users/current": "/current"
 }

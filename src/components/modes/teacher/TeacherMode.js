@@ -23,15 +23,18 @@ class TeacherMode extends Component {
   constructor(props) {
     super(props);
 
-    // get all of the resources
-    props.dispatchGetAppInstanceResources();
+    // get all of the resources, but because of a quirk in the api we need to
+    // pass includePublic as false to avoid filtering out private resources
+    props.dispatchGetAppInstanceResources({ includePublic: false });
   }
 
   componentDidUpdate({ appInstanceId: prevAppInstanceId }) {
     const { appInstanceId, dispatchGetAppInstanceResources } = this.props;
     // handle receiving the app instance id
     if (appInstanceId !== prevAppInstanceId) {
-      dispatchGetAppInstanceResources();
+      // get all of the resources, but because of a quirk in the api we need to
+      // pass includePublic as false to avoid filtering out private resources
+      dispatchGetAppInstanceResources({ includePublic: false });
     }
   }
 

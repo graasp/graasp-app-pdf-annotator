@@ -3,28 +3,36 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import StudentView from './StudentView';
 import { DEFAULT_VIEW, FEEDBACK_VIEW } from '../../../config/views';
-import { getAppInstanceResources } from '../../../actions';
-import Loader from '../../common/Loader';
+import { getAppInstanceResources, getLightUsers } from '../../../actions';
+import {
+  DEFAULT_VISIBILITY,
+  PRIVATE_VISIBILITY,
+  PUBLIC_VISIBILITY,
+} from '../../../config/settings';
 
 class StudentMode extends Component {
   static propTypes = {
     appInstanceId: PropTypes.string,
     view: PropTypes.string,
-    activity: PropTypes.number,
+    dispatchGetLightUsers: PropTypes.func.isRequired,
     dispatchGetAppInstanceResources: PropTypes.func.isRequired,
     userId: PropTypes.string,
+    visibility: PropTypes.oneOf([PRIVATE_VISIBILITY, PUBLIC_VISIBILITY]),
   };
 
   static defaultProps = {
     view: 'normal',
     appInstanceId: null,
-    activity: 0,
     userId: null,
+    visibility: DEFAULT_VISIBILITY,
   };
 
   constructor(props) {
     super(props);
     const { userId } = props;
+
+    // get light users
+    props.dispatchGetLightUsers();
 
     // get the resources for this user
     props.dispatchGetAppInstanceResources({ userId });
@@ -43,28 +51,29 @@ class StudentMode extends Component {
   }
 
   render() {
-    const { view, activity } = this.props;
-    if (activity) {
-      return <Loader />;
-    }
+    const { view, visibility } = this.props;
     switch (view) {
       case FEEDBACK_VIEW:
       case DEFAULT_VIEW:
       default:
-        return <StudentView />;
+        return <StudentView visibility={visibility} />;
     }
   }
 }
-const mapStateToProps = ({ context, appInstanceResources }) => {
+const mapStateToProps = ({ context, appInstance }) => {
   const { userId, appInstanceId } = context;
+  const { collaborative } = appInstance.content.settings;
+  // visibility determines whether resources are public or private
+  const visibility = collaborative ? PUBLIC_VISIBILITY : PRIVATE_VISIBILITY;
   return {
     userId,
     appInstanceId,
-    activity: appInstanceResources.activity.length,
+    visibility,
   };
 };
 
 const mapDispatchToProps = {
+  dispatchGetLightUsers: getLightUsers,
   dispatchGetAppInstanceResources: getAppInstanceResources,
 };
 
