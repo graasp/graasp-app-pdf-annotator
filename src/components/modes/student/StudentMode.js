@@ -31,6 +31,11 @@ class StudentMode extends Component {
     super(props);
     const { userId } = props;
 
+    // sets a minimum height when embedded
+    if (window.frameElement) {
+      window.frameElement.style['min-height'] = '900px';
+    }
+
     // get light users
     props.dispatchGetLightUsers();
 
