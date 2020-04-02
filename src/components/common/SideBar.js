@@ -12,11 +12,18 @@ import {
   ListItemAvatar,
   Tooltip,
 } from '@material-ui/core';
-import { Delete as DeleteIcon } from '@material-ui/icons';
+import {
+  Delete as DeleteIcon,
+  Refresh as RefreshIcon,
+} from '@material-ui/icons';
 import Avatar from '@material-ui/core/Avatar';
 import { withTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
-import { deleteAppInstanceResource } from '../../actions';
+import {
+  deleteAppInstanceResource,
+  getAppInstanceResources,
+  getUsers,
+} from '../../actions';
 import { TEACHER_MODES } from '../../config/settings';
 import getInitials from '../../utils/getInitials';
 
@@ -44,14 +51,26 @@ const SideBar = ({
   t,
   highlights,
   dispatchDeleteAppInstanceResource,
+  dispatchGetAppInstanceResources,
+  dispatchGetUsers,
   userId,
   mode,
 }) => {
   const classes = useStyles();
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
+  const handleRefresh = () => {
+    dispatchGetAppInstanceResources({ userId });
+    dispatchGetUsers();
+  };
+
   return (
     <div className={classes.root}>
+      <div align="right">
+        <IconButton color="primary" onClick={handleRefresh}>
+          <RefreshIcon />
+        </IconButton>
+      </div>
       <List dense>
         {highlights.map((highlight, index) => {
           const {
@@ -140,6 +159,8 @@ SideBar.propTypes = {
   t: PropTypes.func.isRequired,
   mode: PropTypes.string.isRequired,
   dispatchDeleteAppInstanceResource: PropTypes.func.isRequired,
+  dispatchGetAppInstanceResources: PropTypes.func.isRequired,
+  dispatchGetUsers: PropTypes.func.isRequired,
 };
 
 SideBar.defaultProps = {
@@ -154,6 +175,8 @@ const mapStateToProps = ({ context }) => ({
 
 const mapDispatchToProps = {
   dispatchDeleteAppInstanceResource: deleteAppInstanceResource,
+  dispatchGetAppInstanceResources: getAppInstanceResources,
+  dispatchGetUsers: getUsers,
 };
 
 const TranslatedComponent = withTranslation()(SideBar);

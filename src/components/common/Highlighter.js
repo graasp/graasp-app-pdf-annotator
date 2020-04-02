@@ -10,6 +10,8 @@ import {
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core';
 import { withTranslation } from 'react-i18next';
+import Fab from '@material-ui/core/Fab';
+import { CloudDownload as CloudDownloadIcon } from '@material-ui/icons';
 import Loader from './Loader';
 import Sidebar from './SideBar';
 import HighlightPopup from './HighlightPopup';
@@ -54,6 +56,9 @@ class Highlighter extends Component {
       collaborative: PropTypes.bool.isRequired,
       file: PropTypes.object,
     }).isRequired,
+    classes: PropTypes.shape({
+      fab: PropTypes.string,
+    }).isRequired,
   };
 
   static defaultProps = {
@@ -62,7 +67,15 @@ class Highlighter extends Component {
     currentUserId: null,
   };
 
-  static styles = {};
+  static styles = theme => ({
+    fab: {
+      margin: theme.spacing(),
+      position: 'fixed',
+      bottom: theme.spacing(2),
+      left: theme.spacing(2),
+      zIndex: 10000,
+    },
+  });
 
   state = {
     sideBarOpen: true,
@@ -116,7 +129,7 @@ class Highlighter extends Component {
 
   render() {
     const { sideBarOpen } = this.state;
-    const { highlights, ready, settings } = this.props;
+    const { highlights, ready, settings, t, classes } = this.props;
 
     const { file: { uri } = {} } = settings;
 
@@ -129,93 +142,108 @@ class Highlighter extends Component {
     }
 
     return (
-      <div style={{ display: 'flex', height: '100vh' }}>
-        <div
-          style={{
-            height: '100vh',
-            width: '75vw',
-            overflowY: 'scroll',
-            position: 'relative',
-          }}
-        >
-          <PdfLoader url={uri} beforeLoad={<Loader />}>
-            {pdfDocument => (
-              <PdfHighlighter
-                pdfDocument={pdfDocument}
-                enableAreaSelection={false}
-                onScrollChange={resetHash}
-                scrollRef={scrollTo => {
-                  this.scrollViewerTo = scrollTo;
+      <>
+        <div style={{ display: 'flex', height: '100vh' }}>
+          <div
+            style={{
+              height: '100vh',
+              width: '75vw',
+              overflowY: 'scroll',
+              position: 'relative',
+            }}
+          >
+            <PdfLoader url={uri} beforeLoad={<Loader />}>
+              {pdfDocument => (
+                <PdfHighlighter
+                  pdfDocument={pdfDocument}
+                  enableAreaSelection={false}
+                  onScrollChange={resetHash}
+                  scrollRef={scrollTo => {
+                    this.scrollViewerTo = scrollTo;
 
-                  this.scrollToHighlightFromHash();
-                }}
-                onSelectionFinished={(
-                  position,
-                  content,
-                  hideTipAndSelection,
-                  transformSelection,
-                ) => (
-                  <NewHighlightPopup
-                    onOpen={transformSelection}
-                    onConfirm={comment => {
-                      this.addHighlight({ content, position, comment });
+                    this.scrollToHighlightFromHash();
+                  }}
+                  onSelectionFinished={(
+                    position,
+                    content,
+                    hideTipAndSelection,
+                    transformSelection,
+                  ) => (
+                    <NewHighlightPopup
+                      onOpen={transformSelection}
+                      onConfirm={comment => {
+                        this.addHighlight({ content, position, comment });
 
-                      hideTipAndSelection();
-                    }}
-                    onCancel={hideTipAndSelection}
-                  />
-                )}
-                highlightTransform={(
-                  highlight,
-                  index,
-                  setTip,
-                  hideTip,
-                  viewportToScaled,
-                  screenshot,
-                  isScrolledTo,
-                ) => {
-                  const isTextHighlight = !(
-                    highlight.content && highlight.content.image
-                  );
-
-                  const component = isTextHighlight ? (
-                    <Highlight
-                      isScrolledTo={isScrolledTo}
-                      position={highlight.position}
-                      comment={highlight.comment}
+                        hideTipAndSelection();
+                      }}
+                      onCancel={hideTipAndSelection}
                     />
-                  ) : (
-                    <AreaHighlight highlight={highlight} onChange={() => {}} />
-                  );
+                  )}
+                  highlightTransform={(
+                    highlight,
+                    index,
+                    setTip,
+                    hideTip,
+                    viewportToScaled,
+                    screenshot,
+                    isScrolledTo,
+                  ) => {
+                    const isTextHighlight = !(
+                      highlight.content && highlight.content.image
+                    );
 
-                  const handleFocus = popupContent => {
-                    return setTip(highlight, () => popupContent);
-                  };
+                    const component = isTextHighlight ? (
+                      <Highlight
+                        isScrolledTo={isScrolledTo}
+                        position={highlight.position}
+                        comment={highlight.comment}
+                      />
+                    ) : (
+                      <AreaHighlight
+                        highlight={highlight}
+                        onChange={() => {}}
+                      />
+                    );
 
-                  const handleMouseOver = popupContent => {
-                    return setTip(highlight, () => popupContent);
-                  };
+                    const handleFocus = popupContent => {
+                      return setTip(highlight, () => popupContent);
+                    };
 
-                  return (
-                    <Popup
-                      popupContent={<HighlightPopup highlight={highlight} />}
-                      onFocus={handleFocus}
-                      onMouseOver={handleMouseOver}
-                      onMouseOut={hideTip}
-                      onBlur={hideTip}
-                      key={index}
-                    >
-                      {component}
-                    </Popup>
-                  );
-                }}
-                highlights={highlights}
-              />
-            )}
-          </PdfLoader>
+                    const handleMouseOver = popupContent => {
+                      return setTip(highlight, () => popupContent);
+                    };
+
+                    return (
+                      <Popup
+                        popupContent={<HighlightPopup highlight={highlight} />}
+                        onFocus={handleFocus}
+                        onMouseOver={handleMouseOver}
+                        onMouseOut={hideTip}
+                        onBlur={hideTip}
+                        key={index}
+                      >
+                        {component}
+                      </Popup>
+                    );
+                  }}
+                  highlights={highlights}
+                />
+              )}
+            </PdfLoader>
+          </div>
+          {sideBarOpen && <Sidebar highlights={highlights} />}
         </div>
-        {sideBarOpen && <Sidebar highlights={highlights} />}
-      </div>
+        <Fab
+          color="primary"
+          aria-label={t('Download')}
+          className={classes.fab}
+          href={uri}
+          target="_blank"
+          onClick={() => {}}
+        >
+          <CloudDownloadIcon />
+        </Fab>
+      </>
     );
   }
 }

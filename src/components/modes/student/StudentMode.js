@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import StudentView from './StudentView';
 import { DEFAULT_VIEW, FEEDBACK_VIEW } from '../../../config/views';
-import { getAppInstanceResources, getLightUsers } from '../../../actions';
+import { getAppInstanceResources, getUsers } from '../../../actions';
 import {
   DEFAULT_VISIBILITY,
   PRIVATE_VISIBILITY,
@@ -14,7 +14,7 @@ class StudentMode extends Component {
   static propTypes = {
     appInstanceId: PropTypes.string,
     view: PropTypes.string,
-    dispatchGetLightUsers: PropTypes.func.isRequired,
+    dispatchGetUsers: PropTypes.func.isRequired,
     dispatchGetAppInstanceResources: PropTypes.func.isRequired,
     userId: PropTypes.string,
     visibility: PropTypes.oneOf([PRIVATE_VISIBILITY, PUBLIC_VISIBILITY]),
@@ -37,7 +37,7 @@ class StudentMode extends Component {
     }
 
     // get light users
-    props.dispatchGetLightUsers();
+    props.dispatchGetUsers();
 
     // get the resources for this user
     props.dispatchGetAppInstanceResources({ userId });
@@ -78,7 +78,7 @@ const mapStateToProps = ({ context, appInstance }) => {
 };
 
 const mapDispatchToProps = {
-  dispatchGetLightUsers: getLightUsers,
+  dispatchGetUsers: getUsers,
   dispatchGetAppInstanceResources: getAppInstanceResources,
 };
 
